@@ -21,6 +21,49 @@ app.mount("/static", StaticFiles(directory=os.path.join(Path(__file__).parent,
 
 # In-memory activity database
 activities = {
+    # Sports (2 more)
+    "Soccer Team": {
+        "description": "Play competitive soccer matches against other schools",
+        "schedule": "Tuesdays and Thursdays, 4:00 PM - 5:30 PM",
+        "max_participants": 22,
+        "participants": []
+    },
+    "Swimming Club": {
+        "description": "Learn and practice various swimming techniques",
+        "schedule": "Wednesdays, 3:30 PM - 5:00 PM",
+        "max_participants": 15,
+        "participants": []
+    },
+
+    # Artistic (2 more)
+    "Drama Club": {
+        "description": "Act, direct, and produce theatrical performances",
+        "schedule": "Mondays, 4:00 PM - 5:30 PM",
+        "max_participants": 20,
+        "participants": []
+    },
+    "Art Workshop": {
+        "description": "Explore painting, drawing, and sculpture techniques",
+        "schedule": "Fridays, 3:30 PM - 5:00 PM",
+        "max_participants": 15,
+        "participants": []
+    },
+
+    # Intellectual (2 more)
+    "Debate Team": {
+        "description": "Practice argumentation and public speaking",
+        "schedule": "Thursdays, 4:00 PM - 5:30 PM",
+        "max_participants": 12,
+        "participants": []
+    },
+    "Math Olympiad": {
+        "description": "Prepare for mathematics competitions and challenges",
+        "schedule": "Wednesdays, 4:00 PM - 5:00 PM",
+        "max_participants": 20,
+        "participants": []
+    },
+
+    # Existing activities
     "Chess Club": {
         "description": "Learn strategies and compete in chess tournaments",
         "schedule": "Fridays, 3:30 PM - 5:00 PM",
@@ -62,6 +105,29 @@ def signup_for_activity(activity_name: str, email: str):
     # Get the specific activity
     activity = activities[activity_name]
 
+    # Validate student is not already signed up
+    if email in activity["participants"]:
+        raise HTTPException(status_code=400, detail="Student is already signed up for this activity")
+
     # Add student
     activity["participants"].append(email)
     return {"message": f"Signed up {email} for {activity_name}"}
+
+
+@app.delete("/activities/{activity_name}/participants/{email}")
+def remove_participant(activity_name: str, email: str):
+    """Remove a student from an activity"""
+    # Validate activity exists
+    if activity_name not in activities:
+        raise HTTPException(status_code=404, detail="Activity not found")
+
+    # Get the specific activity
+    activity = activities[activity_name]
+
+    # Validate student is registered
+    if email not in activity["participants"]:
+        raise HTTPException(status_code=404, detail="Student not found in this activity")
+
+    # Remove student
+    activity["participants"].remove(email)
+    return {"message": f"Removed {email} from {activity_name}"}
