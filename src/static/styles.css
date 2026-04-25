@@ -208,3 +208,16 @@ footer {
   padding: 20px;
   color: #666;
 }
+
+@pytest.mark.asyncio
+async def test_get_activities():
+    """Test fetching all activities"""
+    # Arrange
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        # Act
+        response = await client.get("/activities")
+        
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        assert "Chess Club" in data
